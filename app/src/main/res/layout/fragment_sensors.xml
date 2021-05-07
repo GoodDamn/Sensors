@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <HorizontalScrollView
+        android:scrollbars="none"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/imageViewBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </HorizontalScrollView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#00FFFFFF">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#00000000">
+
+            <ImageView
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:id="@+id/imageView_compass"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@drawable/compass"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="20dp"
+                android:background="@drawable/man"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textView_steps_counter" />
+
+            <TextView
+                android:id="@+id/textView_steps_counter"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="start|center"
+                android:layout_marginStart="75dp"
+                android:text="Sensor 'Steps counter' isn't available"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/rambla"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView_gravity"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:fontFamily="@font/rambla"
+                android:gravity="top|center"
+                android:text="Sensor 'Gravity' isn't available"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/wooden_box"
+                app:layout_constraintBottom_toTopOf="@+id/seekbar_gravity"
+                app:layout_constraintEnd_toEndOf="@+id/seekbar_gravity" />
+
+            <ImageView
+                android:id="@+id/imageView_flyingBox"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginStart="13dp"
+                android:background="@drawable/wooden_box"
+                app:layout_constraintBottom_toTopOf="@+id/seekbar_gravity"
+                app:layout_constraintStart_toStartOf="@+id/seekbar_gravity" />
+
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:progressDrawable="@drawable/gradient_gravity"
+                android:thumb="@drawable/thumb_stick"
+                android:id="@+id/seekbar_gravity"
+                android:progress="5"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:layout_marginHorizontal="90dp"
+                android:max="10"
+                app:layout_constraintBottom_toBottomOf="@+id/textView_gravity"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView_gravity" />
+
+            <ImageView
+                android:id="@+id/imageView_smartphone"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_below="@+id/textView_gravity"
+                android:layout_marginEnd="25dp"
+                android:background="@drawable/ic_smartphone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView_gravity" />
+
+            <TextView
+                android:id="@+id/textView_temperature"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:fontFamily="@font/rambla"
+                android:gravity="center"
+                android:text="Sensor 'Temperature' isn't available"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView_smartphone" />
+
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:thumb="@drawable/thumb_stick"
+                android:id="@+id/seekbar_temperature"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:layout_marginHorizontal="15dp"
+                android:max="600"
+                android:progress="300"
+                android:progressDrawable="@drawable/gradient_temperature"
+                android:saveEnabled="false"
+                app:layout_constraintBottom_toBottomOf="@+id/textView_temperature"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView_temperature" />
+
+            <TextView
+                android:id="@+id/textView_light"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginStart="75dp"
+                android:gravity="start|center"
+                android:textStyle="bold"
+                android:text="Sensor 'Light' isn't available"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/rambla"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView_temperature" />
+
+            <ImageView
+                android:id="@+id/imageView_lamp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="20dp"
+                android:background="@drawable/lamp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textView_light" />
+
+            <TextView
+                android:id="@+id/textView_Acceleration"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:text="Sensor 'Linear Acceleration' isn't available"
+                app:layout_constraintTop_toBottomOf="@+id/textView_light"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textView_humidity"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="start|center"
+                android:fontFamily="@font/rambla"
+                android:text="Sensor 'Relative Humidity' isn't available"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="75dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView_humidity"
+                app:layout_constraintTop_toBottomOf="@+id/textView_Acceleration" />
+
+            <ImageView
+                android:id="@+id/imageView_humidity"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="20dp"
+                android:background="@drawable/humidity"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textView_humidity" />
+
+            <TextView
+                android:id="@+id/textView_pressure"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="start|center"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="75dp"
+                android:fontFamily="@font/rambla"
+                android:textSize="18sp"
+                android:text="Sensor 'Pressure' isn't available"
+                app:layout_constraintTop_toBottomOf="@+id/textView_humidity"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="5dp"
+                android:progress="50"
+                android:progressDrawable="@drawable/progressbar_half_circle_fill"
+                android:rotation="180"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textView_pressure" />
+
+            <ImageView
+                android:id="@+id/imageView_stickPressure"
+                android:layout_width="3dp"
+                android:layout_height="25dp"
+                android:background="@drawable/stick"
+                app:layout_constraintEnd_toEndOf="@+id/progressBar"
+                app:layout_constraintStart_toStartOf="@+id/progressBar"
+                app:layout_constraintBottom_toBottomOf="@+id/progressBar"
+                android:rotation="90"
+                android:transformPivotX="1.5dp" />
+
+            <TextView
+                android:id="@+id/textView_proximity"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/textView_pressure"
+                android:fontFamily="@font/rambla"
+                android:gravity="center"
+                android:text="Sensor 'Proximity' isn't available"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/ic_videocam"
+                app:layout_constraintBottom_toTopOf="@+id/seekbar_proximity"
+                app:layout_constraintStart_toStartOf="@+id/seekbar_proximity" />
+
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:thumb="@drawable/thumb_stick"
+                android:id="@+id/seekbar_proximity"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:max="1"
+                android:layout_marginHorizontal="30dp"
+                android:progressDrawable="@drawable/gradient_proximity"
+                app:layout_constraintBottom_toBottomOf="@+id/textView_proximity"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView_proximity" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</RelativeLayout>
