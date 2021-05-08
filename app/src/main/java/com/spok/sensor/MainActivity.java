@@ -17,6 +17,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.spok.sensor.fragments.FragmentListSensors;
+import com.spok.sensor.fragments.FragmentSensors;
+
 import java.util.List;
 
 import co.gofynd.gravityview.GravityView;
@@ -28,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ((ViewPager) findViewById(R.id.viewPager_main)).setAdapter(new FragmentPagerAdapterMain(getSupportFragmentManager()));
-    }
 
+        GravityView.getInstance(MainActivity.this)
+                .setImage((ImageView) findViewById(R.id.imageViewGravity), R.drawable.background)
+                .center().registerListener();
+    }
 }

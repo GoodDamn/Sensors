@@ -5,6 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <HorizontalScrollView
+        android:scrollbars="none"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <ImageView
+            android:id="@+id/imageViewGravity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </HorizontalScrollView>
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager_main"
         android:layout_width="match_parent"

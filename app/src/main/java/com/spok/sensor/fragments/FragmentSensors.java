@@ -31,7 +31,7 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
     private TextView text_gravity, text_distance, text_temperature,
             text_light, text_acceleration, text_humidity,
             text_pressure, text_proximity;
-    private SeekBar sb_temperature, sb_gravity, sb_proximity;
+    private SeekBar sb_temperature, sb_gravity;
     private ImageView image_lamp, image_smartphone,
             image_humidity, image_stickPressure,
             image_compass;
@@ -41,8 +41,6 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
     {
         return (float) Math.sqrt(X * X + Y * Y + Z * Z);
     }
-
-    private GravityView gravityView;
 
     @Nullable
     @Override
@@ -65,14 +63,11 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
         image_humidity = v.findViewById(R.id.imageView_humidity);
         image_stickPressure = v.findViewById(R.id.imageView_stickPressure);
         sb_temperature = v.findViewById(R.id.seekbar_temperature);
-        sb_proximity = v.findViewById(R.id.seekbar_proximity);
         sb_gravity = v.findViewById(R.id.seekbar_gravity);
         sb_gravity.setEnabled(false);
-        sb_proximity.setEnabled(false);
         sb_temperature.setEnabled(false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            sb_proximity.setSplitTrack(false);
             sb_gravity.setSplitTrack(false);
             sb_gravity.setSplitTrack(false);
         }
@@ -112,10 +107,6 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
         });
         gravityWoodenBox.startAnimation(gravity_up);
 
-        gravityView = GravityView.getInstance(getContext());
-        gravityView.setImage((ImageView) v.findViewById(R.id.imageViewBackground), R.drawable.background)
-                .center();
-
         return v;
     }
 
@@ -136,7 +127,6 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE), delay);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY), delay);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), delay);
-        gravityView.registerListener();
     }
 
     @Override
@@ -145,10 +135,9 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
         sensorManager.unregisterListener(this);
     }
 
-    private float[] aAccelerometer = new float[3],
+    private final float[] aAccelerometer = new float[3],
             aGeomagnetic = new float[3];
-    private float azimuth = 0f,
-            currentAzimuth = 0f;
+    private float currentAzimuth = 0f;
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -171,9 +160,6 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
                     break;
                 case Sensor.TYPE_PROXIMITY:
                     text_proximity.setText(event.values[0] + " cm");
-                    if (event.values[0] > sb_proximity.getMax())
-                        sb_proximity.setMax((int) event.values[0]);
-                    sb_proximity.setProgress((int) event.values[0]);
                     break;
                 case Sensor.TYPE_PRESSURE:
                     text_pressure.setText(event.values[0] + " hPa");
@@ -212,7 +198,7 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
             if (isSuccess) {
                 float[] orientation = new float[3];
                 SensorManager.getOrientation(W, orientation);
-                azimuth = ((float) Math.toDegrees(orientation[0]) + 360) % 360;
+                float azimuth = ((float) Math.toDegrees(orientation[0]) + 360) % 360;
                 Animation animation = new RotateAnimation(-currentAzimuth, -azimuth, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 currentAzimuth = azimuth;
                 animation.setDuration(500);
