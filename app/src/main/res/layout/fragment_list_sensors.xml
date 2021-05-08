@@ -14,8 +14,20 @@
             android:background="#00FFFFFF">
 
             <TextView
-                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_marginHorizontal="15dp"
                 android:layout_marginTop="25dp"
+                android:text="@string/list_of_available_sensors_on_this_device"
+                android:fontFamily="@font/rambla"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+
+            <TextView
+                android:gravity="center"
+                android:layout_marginTop="75dp"
                 android:id="@+id/list_of_sensors"
                 android:layout_marginHorizontal="15dp"
                 android:fontFamily="@font/rambla"

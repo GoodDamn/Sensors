@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Sensor</string>
+    <string name="list_of_available_sensors_on_this_device">List of available sensors on this device:</string>
+    <string name="sensor_steps_counter_isn_t_available">Sensor \'Steps counter\' isn\'t available</string>
+    <string name="sensor_gravity_isn_t_available">Sensor \'Gravity\' isn\'t available</string>
+    <string name="sensor_temperature_isn_t_available">Sensor \'Temperature\' isn\'t available</string>
+    <string name="sensor_light_isn_t_available">Sensor \'Light\' isn\'t available</string>
+    <string name="sensor_linear_acceleration_isn_t_available">Sensor \'Linear Acceleration\' isn\'t available</string>
+    <string name="sensor_relative_humidity_isn_t_available">Sensor \'Relative Humidity\' isn\'t available</string>
+    <string name="sensor_pressure_isn_t_available">Sensor \'Pressure\' isn\'t available</string>
+    <string name="sensor_proximity_isn_t_available">Sensor \'Proximity\' isn\'t available</string>
 </resources>
