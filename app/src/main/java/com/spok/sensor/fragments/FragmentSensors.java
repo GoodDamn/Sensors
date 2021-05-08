@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,10 +32,10 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
     private TextView text_gravity, text_distance, text_temperature,
             text_light, text_acceleration, text_humidity,
             text_pressure, text_proximity;
-    private SeekBar sb_temperature, sb_gravity;
+    private SeekBar sb_temperature, sb_gravity, sb_linearAcceleration;
     private ImageView image_lamp, image_smartphone,
-            image_humidity, image_stickPressure,
-            image_compass;
+            image_stickHumidity, image_stickPressure,
+            image_compass, image_proximityGrad;
     private SensorManager sensorManager;
 
     private float vectorLength(float X, float Y, float Z) // Vector length
@@ -57,19 +58,23 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
         text_humidity = v.findViewById(R.id.textView_humidity);
         text_pressure = v.findViewById(R.id.textView_pressure);
         text_proximity = v.findViewById(R.id.textView_proximity);
+
         image_lamp = v.findViewById(R.id.imageView_lamp);
         image_smartphone = v.findViewById(R.id.imageView_smartphone);
         image_compass = v.findViewById(R.id.imageView_compass);
-        image_humidity = v.findViewById(R.id.imageView_humidity);
+        image_stickHumidity = v.findViewById(R.id.imageView_stickHumidity);
         image_stickPressure = v.findViewById(R.id.imageView_stickPressure);
+        image_proximityGrad = v.findViewById(R.id.imageView_proximityGrad);
+
         sb_temperature = v.findViewById(R.id.seekbar_temperature);
         sb_gravity = v.findViewById(R.id.seekbar_gravity);
+        sb_linearAcceleration = v.findViewById(R.id.seekbar_linearAcceleration);
+        sb_linearAcceleration.setEnabled(false);
         sb_gravity.setEnabled(false);
         sb_temperature.setEnabled(false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            sb_gravity.setSplitTrack(false);
-            sb_gravity.setSplitTrack(false);
+            sb_linearAcceleration.setSplitTrack(false);
         }
 
         final ImageView gravityWoodenBox = v.findViewById(R.id.imageView_flyingBox);
@@ -138,7 +143,9 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
     private final float[] aAccelerometer = new float[3],
             aGeomagnetic = new float[3];
     private float currentAzimuth = 0f;
+    private int maxProximity = 1;
 
+    private boolean isExecuting = false;
     @Override
     public void onSensorChanged(SensorEvent event) {
         float smooth = 0.97f;
@@ -152,25 +159,29 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
                     aAccelerometer[1] = smooth * aAccelerometer[1] + (1 - smooth) * event.values[1];
                     aAccelerometer[2] = smooth * aAccelerometer[2] + (1 - smooth) * event.values[2];
                     break;
-                case Sensor.TYPE_STEP_COUNTER:
+                case Sensor.TYPE_STEP_COUNTER: // Steps counter
                     text_distance.setText(event.values[0] + " m");
                     break;
-                case Sensor.TYPE_GYROSCOPE:
+                case Sensor.TYPE_GYROSCOPE: // Gyroscope
                     image_smartphone.setRotationY((float) (event.values[1] * 180 / Math.PI)); // Set Rotation on Y axis
                     break;
-                case Sensor.TYPE_PROXIMITY:
+                case Sensor.TYPE_PROXIMITY: // Proximity
                     text_proximity.setText(event.values[0] + " cm");
+                    if (event.values[0] > maxProximity) maxProximity = (int) event.values[0];
+                    image_proximityGrad.setAlpha(event.values[0] / 10);
                     break;
-                case Sensor.TYPE_PRESSURE:
+                case Sensor.TYPE_PRESSURE: // Pressure
                     text_pressure.setText(event.values[0] + " hPa");
                     image_stickPressure.setRotation(event.values[0] * 180 / 1100 + 90);
                     break;
-                case Sensor.TYPE_RELATIVE_HUMIDITY:
+                case Sensor.TYPE_RELATIVE_HUMIDITY: // Relative Humidity
                     text_humidity.setText(event.values[0] + "%");
-                    image_humidity.setAlpha(event.values[0] / 100);
+                    image_stickHumidity.setRotation(164 * event.values[0] / 100 + 140);
                     break;
-                case Sensor.TYPE_LINEAR_ACCELERATION:
-                    text_acceleration.setText("Linear Acceleration: " + vectorLength(event.values[0], event.values[1], event.values[2]) + " m/s2");
+                case Sensor.TYPE_LINEAR_ACCELERATION: // Linear Acceleration
+                    float acceleration = vectorLength(event.values[0], event.values[1], event.values[2]) * 10;
+                    text_acceleration.setText(acceleration / 10 + " m/s2");
+                    if (!isExecuting) new SeekBarAnimation().execute((int) acceleration);
                     break;
                 case Sensor.TYPE_LIGHT:
                     image_lamp.setAlpha(event.values[0] / 100);
@@ -194,14 +205,14 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
 
             float[] W = new float[9],
                     E = new float[9];
-            boolean isSuccess = SensorManager.getRotationMatrix(W, E, aAccelerometer, aGeomagnetic);
-            if (isSuccess) {
+            if (SensorManager.getRotationMatrix(W, E, aAccelerometer, aGeomagnetic)) {
                 float[] orientation = new float[3];
                 SensorManager.getOrientation(W, orientation);
                 float azimuth = ((float) Math.toDegrees(orientation[0]) + 360) % 360;
-                Animation animation = new RotateAnimation(-currentAzimuth, -azimuth, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                Animation animation = new RotateAnimation(-currentAzimuth, -azimuth, Animation.RELATIVE_TO_SELF,
+                        0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 currentAzimuth = azimuth;
-                animation.setDuration(500);
+                animation.setDuration(300);
                 animation.setFillAfter(true);
                 image_compass.startAnimation(animation);
             }
@@ -212,4 +223,41 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
     }
+
+
+    public class SeekBarAnimation extends AsyncTask<Integer, Integer, Void> {
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            isExecuting = true;
+            int oldProgress = sb_linearAcceleration.getProgress();
+            if (integers[0] > oldProgress) {
+                for (int i = sb_linearAcceleration.getProgress(); i <= integers[0]; i++) {
+                    publishProgress(i);
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                for (int i = sb_linearAcceleration.getProgress(); i >= integers[0]; i--) {
+                    publishProgress(i);
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            isExecuting = false;
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            sb_linearAcceleration.setProgress(values[0]);
+        }
+    }
+
 }
