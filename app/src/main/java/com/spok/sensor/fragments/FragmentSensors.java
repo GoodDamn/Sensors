@@ -1,5 +1,6 @@
 package com.spok.sensor.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -17,7 +18,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +25,8 @@ import androidx.fragment.app.Fragment;
 
 import com.spok.sensor.R;
 
-import co.gofynd.gravityview.GravityView;
+import java.text.DecimalFormat;
+
 
 public class FragmentSensors extends Fragment implements SensorEventListener {
 
@@ -140,27 +141,28 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
         sensorManager.unregisterListener(this);
     }
 
-    private final float[] aAccelerometer = new float[3],
-            aGeomagnetic = new float[3];
+    private final float[] fAccelerometer = new float[3],
+            fGeomagnetic = new float[3];
     private float currentAzimuth = 0f;
     private int maxProximity = 1;
+    private boolean isExecutingLAcceleration = false;
 
-    private boolean isExecuting = false;
+    @SuppressLint("SetTextI18n")
     @Override
     public void onSensorChanged(SensorEvent event) {
         float smooth = 0.97f;
         synchronized (this) // Async execution
         {
             switch (event.sensor.getType()) {
-                case Sensor.TYPE_ACCELEROMETER:
+                case Sensor.TYPE_ACCELEROMETER: // Accelerometer
                     image_smartphone.setRotation(event.values[0] * -9); // Set Rotation on Z axis
                     image_smartphone.setRotationX(event.values[2] * 9); // Set Rotation on X axis
-                    aAccelerometer[0] = smooth * aAccelerometer[0] + (1 - smooth) * event.values[0];
-                    aAccelerometer[1] = smooth * aAccelerometer[1] + (1 - smooth) * event.values[1];
-                    aAccelerometer[2] = smooth * aAccelerometer[2] + (1 - smooth) * event.values[2];
+                    fAccelerometer[0] = smooth * fAccelerometer[0] + (1 - smooth) * event.values[0]; // X axis
+                    fAccelerometer[1] = smooth * fAccelerometer[1] + (1 - smooth) * event.values[1]; // Y axis
+                    fAccelerometer[2] = smooth * fAccelerometer[2] + (1 - smooth) * event.values[2]; // Z axis
                     break;
                 case Sensor.TYPE_STEP_COUNTER: // Steps counter
-                    text_distance.setText(event.values[0] + " m");
+                    text_distance.setText((int) event.values[0] + " m");
                     break;
                 case Sensor.TYPE_GYROSCOPE: // Gyroscope
                     image_smartphone.setRotationY((float) (event.values[1] * 180 / Math.PI)); // Set Rotation on Y axis
@@ -180,36 +182,38 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
                     break;
                 case Sensor.TYPE_LINEAR_ACCELERATION: // Linear Acceleration
                     float acceleration = vectorLength(event.values[0], event.values[1], event.values[2]) * 10;
-                    text_acceleration.setText(acceleration / 10 + " m/s2");
-                    if (!isExecuting) new SeekBarAnimation().execute((int) acceleration);
+                    text_acceleration.setText(new DecimalFormat("#0.0").format(acceleration / 10) + " m/s2");
+                    if (!isExecutingLAcceleration) new SeekBarAnimation(sb_linearAcceleration)
+                            .execute((int) acceleration);
                     break;
-                case Sensor.TYPE_LIGHT:
+                case Sensor.TYPE_LIGHT: // Light
                     image_lamp.setAlpha(event.values[0] / 100);
                     text_light.setText(event.values[0] + " lx");
                     break;
-                case Sensor.TYPE_AMBIENT_TEMPERATURE:
+                case Sensor.TYPE_AMBIENT_TEMPERATURE: // Temperature
                     text_temperature.setText(event.values[0] + "°C");
                     sb_temperature.setProgress((int) (sb_temperature.getMax() / 2 + event.values[0]));
                     break;
-                case Sensor.TYPE_GRAVITY:
+                case Sensor.TYPE_GRAVITY: // Gravity
                     float value = vectorLength(event.values[0], event.values[1], event.values[2]);
                     text_gravity.setText(value + " m/s2");
                     sb_gravity.setProgress((short) value);
                     break;
-                case Sensor.TYPE_MAGNETIC_FIELD:
-                    aGeomagnetic[0] = smooth * aGeomagnetic[0] + (1 - smooth) * event.values[0];
-                    aGeomagnetic[1] = smooth * aGeomagnetic[1] + (1 - smooth) * event.values[1];
-                    aGeomagnetic[2] = smooth * aGeomagnetic[2] + (1 - smooth) * event.values[2];
+                case Sensor.TYPE_MAGNETIC_FIELD: // Magnetic field
+                    fGeomagnetic[0] = smooth * fGeomagnetic[0] + (1 - smooth) * event.values[0]; // X axis
+                    fGeomagnetic[1] = smooth * fGeomagnetic[1] + (1 - smooth) * event.values[1]; // Y axis
+                    fGeomagnetic[2] = smooth * fGeomagnetic[2] + (1 - smooth) * event.values[2]; // Z axis
                     break;
             }
 
             float[] W = new float[9],
                     E = new float[9];
-            if (SensorManager.getRotationMatrix(W, E, aAccelerometer, aGeomagnetic)) {
+            if (SensorManager.getRotationMatrix(W, E, fAccelerometer, fGeomagnetic)) {
+                // If rotation matrix possibly
                 float[] orientation = new float[3];
-                SensorManager.getOrientation(W, orientation);
-                float azimuth = ((float) Math.toDegrees(orientation[0]) + 360) % 360;
-                Animation animation = new RotateAnimation(-currentAzimuth, -azimuth, Animation.RELATIVE_TO_SELF,
+                SensorManager.getOrientation(W, orientation); // Convert values to orientation array.
+                float azimuth = ((float) Math.toDegrees(orientation[0]) + 360) % 360; // Set azimuth from X axis orientation
+                RotateAnimation animation = new RotateAnimation(-currentAzimuth, -azimuth, Animation.RELATIVE_TO_SELF,
                         0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                 currentAzimuth = azimuth;
                 animation.setDuration(300);
@@ -225,38 +229,42 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
     }
 
 
+    @SuppressLint("StaticFieldLeak")
     public class SeekBarAnimation extends AsyncTask<Integer, Integer, Void> {
-        @Override
-        protected Void doInBackground(Integer... integers) {
-            isExecuting = true;
-            int oldProgress = sb_linearAcceleration.getProgress();
-            if (integers[0] > oldProgress) {
-                for (int i = sb_linearAcceleration.getProgress(); i <= integers[0]; i++) {
-                    publishProgress(i);
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                for (int i = sb_linearAcceleration.getProgress(); i >= integers[0]; i--) {
-                    publishProgress(i);
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
+        private final SeekBar seekBar;
+
+        public SeekBarAnimation(SeekBar seekBar) {
+            this.seekBar = seekBar;
+        }
+
+        private void changeProgress(int newValue) {
+            int i = seekBar.getProgress();
+            while (i != newValue) {
+                publishProgress(i);
+                if (newValue > i) i++;
+                else i--;
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-            isExecuting = false;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            isExecutingLAcceleration = true;
+            changeProgress(integers[0]);
+            isExecutingLAcceleration = false;
+
             return null;
         }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            sb_linearAcceleration.setProgress(values[0]);
+            seekBar.setProgress(values[0]);
         }
     }
 
