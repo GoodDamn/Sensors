@@ -45,8 +45,8 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
             image_compass, image_proximityGrad;
     private SensorManager sensorManager;
 
-    private float vectorLength(float X, float Y, float Z) // Vector length
-    {
+    private float vectorLength(float X, float Y, float Z) {
+        // Vector length
         return (float) Math.sqrt(X * X + Y * Y + Z * Z);
     }
 
