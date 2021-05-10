@@ -143,23 +143,23 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
 
     private final float[] fAccelerometer = new float[3],
             fGeomagnetic = new float[3];
-    private float currentAzimuth = 0f;
+    private float newAzimuth = 0f;
     private int maxProximity = 1;
     private boolean isExecutingLAcceleration = false;
 
     @SuppressLint("SetTextI18n")
     @Override
     public void onSensorChanged(SensorEvent event) {
-        float smooth = 0.97f;
         synchronized (this) // Async execution
         {
+            float smooth = 0.95f;
             switch (event.sensor.getType()) {
                 case Sensor.TYPE_ACCELEROMETER: // Accelerometer
                     image_smartphone.setRotation(event.values[0] * -9); // Set Rotation on Z axis
                     image_smartphone.setRotationX(event.values[2] * 9); // Set Rotation on X axis
-                    fAccelerometer[0] = smooth * fAccelerometer[0] + (1 - smooth) * event.values[0]; // X axis
-                    fAccelerometer[1] = smooth * fAccelerometer[1] + (1 - smooth) * event.values[1]; // Y axis
-                    fAccelerometer[2] = smooth * fAccelerometer[2] + (1 - smooth) * event.values[2]; // Z axis
+                    fAccelerometer[0] = smooth * event.values[0]; // X axis
+                    fAccelerometer[1] = smooth * event.values[1]; // Y axis
+                    fAccelerometer[2] = smooth * event.values[2]; // Z axis
                     break;
                 case Sensor.TYPE_STEP_COUNTER: // Steps counter
                     text_distance.setText((int) event.values[0] + " m");
@@ -181,8 +181,8 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
                     image_stickHumidity.setRotation(164 * event.values[0] / 100 + 140);
                     break;
                 case Sensor.TYPE_LINEAR_ACCELERATION: // Linear Acceleration
-                    float acceleration = vectorLength(event.values[0], event.values[1], event.values[2]) * 10;
-                    text_acceleration.setText(new DecimalFormat("#0.0").format(acceleration / 10) + " m/s2");
+                    float acceleration = vectorLength(event.values[0], event.values[1], event.values[2]) * 10f;
+                    text_acceleration.setText(new DecimalFormat("#0.0").format(acceleration / 10f) + " m/s2");
                     if (!isExecutingLAcceleration) new SeekBarAnimation(sb_linearAcceleration)
                             .execute((int) acceleration);
                     break;
@@ -200,24 +200,24 @@ public class FragmentSensors extends Fragment implements SensorEventListener {
                     sb_gravity.setProgress((short) value);
                     break;
                 case Sensor.TYPE_MAGNETIC_FIELD: // Magnetic field
-                    fGeomagnetic[0] = smooth * fGeomagnetic[0] + (1 - smooth) * event.values[0]; // X axis
-                    fGeomagnetic[1] = smooth * fGeomagnetic[1] + (1 - smooth) * event.values[1]; // Y axis
-                    fGeomagnetic[2] = smooth * fGeomagnetic[2] + (1 - smooth) * event.values[2]; // Z axis
+                    fGeomagnetic[0] = smooth * event.values[0]; // X axis
+                    fGeomagnetic[1] = smooth * event.values[1]; // Y axis
+                    fGeomagnetic[2] = smooth * event.values[2]; // Z axis
                     break;
             }
 
-            float[] W = new float[9],
-                    E = new float[9];
-            if (SensorManager.getRotationMatrix(W, E, fAccelerometer, fGeomagnetic)) {
+            float[] R = new float[9];
+            if (SensorManager.getRotationMatrix(R, null, fAccelerometer, fGeomagnetic)) {
                 // If rotation matrix possibly
                 float[] orientation = new float[3];
-                SensorManager.getOrientation(W, orientation); // Convert values to orientation array.
+                SensorManager.getOrientation(R, orientation); // Convert values to orientation array.
                 float azimuth = ((float) Math.toDegrees(orientation[0]) + 360) % 360; // Set azimuth from X axis orientation
-                RotateAnimation animation = new RotateAnimation(-currentAzimuth, -azimuth, Animation.RELATIVE_TO_SELF,
-                        0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                currentAzimuth = azimuth;
-                animation.setDuration(300);
-                animation.setFillAfter(true);
+                RotateAnimation animation = new RotateAnimation(-newAzimuth, -azimuth,
+                        Animation.RELATIVE_TO_SELF, 0.5f,
+                        Animation.RELATIVE_TO_SELF, 0.5f); // Create animation with center pivot to self
+                newAzimuth = azimuth;
+                animation.setDuration(800);
+                animation.setFillAfter(true); // Save position after finishing animation
                 image_compass.startAnimation(animation);
             }
         }
